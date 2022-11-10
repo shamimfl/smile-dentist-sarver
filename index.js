@@ -61,14 +61,14 @@ async function run() {
 
     app.get('/service', async (req, res) => {
         const query = {}
-        const service = serviceCollection.find(query);
+        const service = serviceCollection.find(query).sort({fullDate : -1, fullTime: -1});;
         const result = await service.limit(3).toArray()
         res.send(result);
     })
     app.get('/service/:_id', async (req, res) => {
         const { _id } = req.params
         const query = { _id: ObjectId(_id) }
-        const service = await serviceCollection.findOne(query);
+        const service = await serviceCollection.findOne(query).sort({fullDate : -1, fullTime: -1});
 
         res.send(service);
 
@@ -77,7 +77,7 @@ async function run() {
 
     app.get('/allservice', async (req, res) => {
         const query = {}
-        const service = serviceCollection.find(query);
+        const service = serviceCollection.find(query).sort({fullDate : -1, fullTime: -1});
         const result = await service.toArray()
         res.send(result);
     })
@@ -92,7 +92,7 @@ async function run() {
     app.get('/review', async (req, res) => {
         const name = req.query.serviceName;
         const query = { serviceName: name };
-        const service = reviewCollection.find(query)
+        const service = reviewCollection.find(query).sort({fullDate : -1, fullTime: -1})
         const result = await service.toArray()
         res.send(result)
     })
@@ -114,9 +114,7 @@ async function run() {
                 email: req.query.email
             }
         }
-        // const email = req.query.email;
-        // const query = { email };
-        const cursor = reviewCollection.find(query)
+        const cursor = reviewCollection.find(query).sort({fullDate : 1, fullTime: 1})
         const result = await cursor.toArray()
         res.send(result)
     })
@@ -128,8 +126,34 @@ async function run() {
         const result = await reviewCollection.deleteOne(query);
         res.send(result)
         // console.log(id)
-        
     })
+
+    // get data for edit review 
+    app.get('/edit/:_id', async (req, res) => {
+        const _id = req.params._id;
+        const query = { _id: ObjectId(_id) }
+        const cursor = reviewCollection.find(query);
+        const result = await cursor.toArray()
+        res.send(result);
+    })
+
+    // update 
+    app.put('/edit/:_id', async (req, res) => {
+        const _id = req.params._id;
+        const data = req.body;
+        const query = { _id: ObjectId(_id) };
+        const options = { upsert: true };
+        const updateDoc = {
+            $set: {
+                message: data.message,
+                ratings: data.ratings
+            }
+        };
+        const result = await reviewCollection.updateOne(query, updateDoc, options);
+        res.send(result)
+        console.log(data)
+    })
+
 }
 
 run().catch(console.dir)
