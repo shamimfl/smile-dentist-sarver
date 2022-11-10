@@ -61,14 +61,14 @@ async function run() {
 
     app.get('/service', async (req, res) => {
         const query = {}
-        const service = serviceCollection.find(query).sort({fullDate : -1, fullTime: -1});;
+        const service = serviceCollection.find(query).sort({fullDate : -1, fullTime: -1});
         const result = await service.limit(3).toArray()
         res.send(result);
     })
     app.get('/service/:_id', async (req, res) => {
         const { _id } = req.params
         const query = { _id: ObjectId(_id) }
-        const service = await serviceCollection.findOne(query).sort({fullDate : -1, fullTime: -1});
+        const service = await serviceCollection.findOne(query);
 
         res.send(service);
 
@@ -92,7 +92,7 @@ async function run() {
     app.get('/review', async (req, res) => {
         const name = req.query.serviceName;
         const query = { serviceName: name };
-        const service = reviewCollection.find(query).sort({fullDate : -1, fullTime: -1})
+        const service = reviewCollection.find(query)?.sort({fullDate : -1, fullTime: -1})
         const result = await service.toArray()
         res.send(result)
     })
